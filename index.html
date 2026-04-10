@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yaboy Market</title>
+<style>
+body { font-family: Arial; padding:20px; background:#f5f5f5;}
+h1{text-align:center;}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px;}
+.card{background:white;padding:10px;border-radius:10px;box-shadow:0 2px 5px rgba(0,0,0,0.1);}
+img{width:100%;height:120px;object-fit:cover;border-radius:10px;}
+button{padding:10px;background:green;color:white;border:none;border-radius:5px;margin-top:5px;}
+input,select{padding:5px;margin-top:5px;width:100%;}
+.panier{position:fixed;top:10px;right:10px;background:white;padding:10px;border-radius:10px;}
+.whatsapp{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);}
+.lang{position:fixed;top:10px;left:10px;}
+</style>
+</head>
+<body>
+
+<div class="lang">
+<button onclick="setLang('fr')">FR</button>
+<button onclick="setLang('en')">EN</button>
+</div>
+
+<h1>🐟 Yaboy Market</h1>
+
+<div style="background:#f1f1f1;padding:10px;border-radius:8px;margin:10px 0;">
+  <p>🕒 <strong>Ouvert :</strong> 8h - 18h</p>
+  <p>📍 <strong>Localisation :</strong> Tattaguine Escale face du poste courant</p>
+  <p>📞 <strong>Contact :</strong> +221 76 698 13 95 / +221 77 000 00 00</p>
+</div>
+
+<div class="panier">
+<p id="count">0 article</p>
+<p id="total">Total: 0 FCFA</p>
+</div>
+
+<h2 id="fishTitle">Nos Poissons</h2>
+<div class="grid" id="poissons"></div>
+
+<h2 id="clientTitle">Informations client</h2>
+<input id="nom" placeholder="Nom">
+<input id="tel" placeholder="Téléphone">
+
+<select id="livraison">
+<option value="Livraison standard">Livraison standard</option>
+<option value="Livraison rapide">Livraison rapide</option>
+</select>
+
+<h3>Paiement</h3>
+<select id="paiement">
+<option value="Wave">Wave</option>
+<option value="Orange Money">Orange Money</option>
+</select>
+
+<div class="whatsapp">
+<button onclick="commander()">Commander</button>
+</div>
+
+<script>
+let lang = "fr";
+
+const textes = {
+fr:{
+fish:"Nos Poissons",
+client:"Informations client",
+},
+en:{
+fish:"Our Fish",
+client:"Customer Info",
+}
+};
+
+function setLang(l){
+lang=l;
+document.getElementById("fishTitle").innerText=textes[l].fish;
+document.getElementById("clientTitle").innerText=textes[l].client;
+}
+
+const poissons=[
+{nom:"Yaboye", prix:1500, image:"images/yaboy.jpg"},
+{nom:"Badeu", prix:4500, image:"images/badeu.png"},
+{nom:"Capitaine", prix:5000, image:"images/Capitaine.jpg"},
+{nom:"Dorade", prix:4500, image:"images/dorade.jpg"},
+{nom:"Guiss(dagg-dagg/hulet)",prix:900,image:"images/guiss.png"},
+{nom:"Kibarou", prix:4000, image:"images/kibarou.png"},
+{nom:"Weuyegg",prix:3000,image:"images/weuyeugg.png"},
+{nom:"Seude", prix:5000, image:"images/seud.jpg"},
+{nom:"Sompate", prix:4500, image:"images/sompat.jpg"},
+{nom:"Thiof",prix:5500,image:"images/thiof.jpg"},
+{nom:"Walass", prix:5000, image:"images/walass.jpg"},
+{nom:"Diéye bu wex",prix:2000,image:"images/dieye.jpg"}
+];
+
+let panier=[];
+
+function afficher(){
+let c=document.getElementById("poissons");
+c.innerHTML="";
+poissons.forEach((p,i)=>{
+c.innerHTML+=`
+<div class="card">
+<img src="${p.image}">
+<h3>${p.nom}</h3>
+<p>${p.prix} FCFA/kg</p>
+<input type="number" id="q${i}" value="1" min="1">kg
+<button onclick="add(${i})">Ajouter</button>
+</div>`;
+});
+}
+
+function add(i){
+let q=document.getElementById("q"+i).value;
+panier.push({...poissons[i],qte:parseInt(q)});
+update();
+}
+
+function update(){
+let t=0;
+panier.forEach(p=>t+=p.prix*p.qte);
+document.getElementById("count").innerText=panier.length+" article(s)";
+document.getElementById("total").innerText="Total: "+t+" FCFA";
+}
+
+function commander(){
+let nom=document.getElementById("nom").value;
+let tel=document.getElementById("tel").value;
+let liv=document.getElementById("livraison").value;
+let pay=document.getElementById("paiement").value;
+
+let msg=panier.map(p=>`- ${p.nom} (${p.qte}kg=${p.prix*p.qte})`).join("%0A");
+let total=panier.reduce((s,p)=>s+p.prix*p.qte,0);
+
+let url=`https://wa.me/221766981395?text=Commande:%0A${msg}%0ATotal:${total} FCFA%0ANom:${nom}%0ATel:${tel}%0ALivraison:${liv}%0APaiement:${pay}`;
+window.open(url,"_blank");
+}
+
+afficher();
+</script>
+
+</body>
+</html>
